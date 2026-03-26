@@ -1,0 +1,182 @@
+{
+  "language": "PSL",
+  "version": "1.0",
+  "description": "Pakistan Sign Language dataset for Bridge Talk",
+  "alphabet": {
+    "A": "assets/psl_gifs/A.svg",
+    "B": "assets/psl_gifs/B.svg",
+    "C": "assets/psl_gifs/C.svg",
+    "D": "assets/psl_gifs/D.svg",
+    "E": "assets/psl_gifs/E.svg",
+    "F": "assets/psl_gifs/F.svg",
+    "G": "assets/psl_gifs/G.svg",
+    "H": "assets/psl_gifs/H.svg",
+    "I": "assets/psl_gifs/I.svg",
+    "J": "assets/psl_gifs/J.svg",
+    "K": "assets/psl_gifs/K.svg",
+    "L": "assets/psl_gifs/L.svg",
+    "M": "assets/psl_gifs/M.svg",
+    "N": "assets/psl_gifs/N.svg",
+    "O": "assets/psl_gifs/O.svg",
+    "P": "assets/psl_gifs/P.svg",
+    "Q": "assets/psl_gifs/Q.svg",
+    "R": "assets/psl_gifs/R.svg",
+    "S": "assets/psl_gifs/S.svg",
+    "T": "assets/psl_gifs/T.svg",
+    "U": "assets/psl_gifs/U.svg",
+    "V": "assets/psl_gifs/V.svg",
+    "W": "assets/psl_gifs/W.svg",
+    "X": "assets/psl_gifs/X.svg",
+    "Y": "assets/psl_gifs/Y.svg",
+    "Z": "assets/psl_gifs/Z.svg",
+    "0": "assets/psl_gifs/0.svg",
+    "1": "assets/psl_gifs/1.svg",
+    "2": "assets/psl_gifs/2.svg",
+    "3": "assets/psl_gifs/3.svg",
+    "4": "assets/psl_gifs/4.svg",
+    "5": "assets/psl_gifs/5.svg",
+    "6": "assets/psl_gifs/6.svg",
+    "7": "assets/psl_gifs/7.svg",
+    "8": "assets/psl_gifs/8.svg",
+    "9": "assets/psl_gifs/9.svg"
+  },
+  "words": {
+    "hello": {
+      "type": "word",
+      "letters": "HELLO",
+      "description": "Wave hand side to side at head level"
+    },
+    "goodbye": {
+      "type": "word",
+      "letters": "GOODBYE",
+      "description": "Wave hand from inside outward"
+    },
+    "please": {
+      "type": "word",
+      "letters": "PLEASE",
+      "description": "Circular motion on chest"
+    },
+    "thank you": {
+      "type": "word",
+      "letters": "THANK YOU",
+      "description": "Flat hand from chin moving forward"
+    },
+    "sorry": {
+      "type": "word",
+      "letters": "SORRY",
+      "description": "Fist circled on chest"
+    },
+    "yes": {
+      "type": "word",
+      "letters": "YES",
+      "description": "Fist nodding up and down"
+    },
+    "no": {
+      "type": "word",
+      "letters": "NO",
+      "description": "Index and middle finger tap thumb twice"
+    },
+    "help": {
+      "type": "word",
+      "letters": "HELP",
+      "description": "Thumbs up lifted by other hand"
+    },
+    "water": {
+      "type": "word",
+      "letters": "WATER",
+      "description": "W hand taps chin twice"
+    },
+    "food": {
+      "type": "word",
+      "letters": "FOOD",
+      "description": "Fingers to mouth twice"
+    },
+    "home": {
+      "type": "word",
+      "letters": "HOME",
+      "description": "Fingertips to cheek, then move to temple"
+    },
+    "school": {
+      "type": "word",
+      "letters": "SCHOOL",
+      "description": "Clap hands twice"
+    },
+    "family": {
+      "type": "word",
+      "letters": "FAMILY",
+      "description": "F hands circle around"
+    },
+    "friend": {
+      "type": "word",
+      "letters": "FRIEND",
+      "description": "Hook index fingers together"
+    },
+    "love": {
+      "type": "word",
+      "letters": "LOVE",
+      "description": "Cross arms over chest"
+    },
+    "good": {
+      "type": "word",
+      "letters": "GOOD",
+      "description": "Flat hand from chin forward"
+    },
+    "bad": {
+      "type": "word",
+      "letters": "BAD",
+      "description": "Flat hand flips down from chin"
+    },
+    "big": {
+      "type": "word",
+      "letters": "BIG",
+      "description": "L hands move apart"
+    },
+    "small": {
+      "type": "word",
+      "letters": "SMALL",
+      "description": "Flat hands move together"
+    },
+    "hot": {
+      "type": "word",
+      "letters": "HOT",
+      "description": "Claw hand twists away from mouth"
+    },
+    "cold": {
+      "type": "word",
+      "letters": "COLD",
+      "description": "Fists shake near shoulders"
+    },
+    "mother": {
+      "type": "word",
+      "letters": "MOTHER",
+      "description": "Thumb of 5-hand taps chin"
+    },
+    "father": {
+      "type": "word",
+      "letters": "FATHER",
+      "description": "Thumb of 5-hand taps forehead"
+    },
+    "doctor": {
+      "type": "word",
+      "letters": "DOCTOR",
+      "description": "D hand taps wrist"
+    },
+    "hospital": {
+      "type": "word",
+      "letters": "HOSPITAL",
+      "description": "H hand draws cross on arm"
+    }
+  },
+  "phrases": {
+    "my name is": "Point to self, then spell name",
+    "how are you": "How sign + you point",
+    "i am fine": "Point self + F hand on chest",
+    "nice to meet you": "Nice + meet + you",
+    "where is": "W hand + location point",
+    "i need help": "Point self + need + help sign",
+    "i don't understand": "Point self + twist hand near head",
+    "please repeat": "Please + R hands circle",
+    "speak slowly": "Slow sign + speak"
+  },
+  "fingerspelling_note": "PSL uses fingerspelling for proper nouns and words without established signs"
+}

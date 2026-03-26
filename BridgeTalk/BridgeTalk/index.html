@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bridge Talk — Login</title>
+<link rel="stylesheet" href="style.css" />
+<script>
+    // Redirect if already logged in
+    if (localStorage.getItem("isLoggedIn") === "true") {
+        window.location.href = "src/pages/Dashboard/dashboard.html";
+    }
+</script>
+</head>
+<body class="center-page">
+
+<div class="card">
+    <h1 id="formTitle">Bridge Talk</h1>
+    <p class="muted" id="formSubtitle">Connect • Share • Learn</p>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button class="btn" type="submit">Sign In</button>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm" style="display:none;">
+        <input type="text" placeholder="Full Name" required />
+        <input type="email" placeholder="Email" required />
+        <input type="password" placeholder="Password" required />
+        <button class="btn" type="submit">Create Account</button>
+    </form>
+
+    <p class="muted" style="margin-top:14px;" id="toggleText">
+        Don’t have an account?
+        <a href="#" onclick="showSignup()" style="color:var(--accent)">Create Account</a>
+    </p>
+</div>
+
+<script>
+    const loginForm = document.getElementById("loginForm");
+    const signupForm = document.getElementById("signupForm");
+    const formTitle = document.getElementById("formTitle");
+    const formSubtitle = document.getElementById("formSubtitle");
+    const toggleText = document.getElementById("toggleText");
+
+    function showSignup(){
+        loginForm.style.display = "none";
+        signupForm.style.display = "block";
+        formTitle.textContent = "Create Account";
+        formSubtitle.textContent = "Join Bridge Talk";
+        toggleText.innerHTML = `
+            Already have an account?
+            <a href="#" onclick="showLogin()" style="color:var(--accent)">Sign In</a>
+        `;
+    }
+
+    function showLogin(){
+        signupForm.style.display = "none";
+        loginForm.style.display = "block";
+        formTitle.textContent = "Bridge Talk";
+        formSubtitle.textContent = "Connect • Share • Learn";
+        toggleText.innerHTML = `
+            Don’t have an account?
+            <a href="#" onclick="showSignup()" style="color:var(--accent)">Create Account</a>
+        `;
+    }
+
+    loginForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "src/pages/Dashboard/dashboard.html";
+    });
+
+    signupForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        localStorage.setItem("isLoggedIn", "true");
+        window.location.href = "src/pages/Dashboard/dashboard.html";
+    });
+</script>
+
+</body>
+</html>
