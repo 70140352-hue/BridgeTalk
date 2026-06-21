@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Text → Sign — BridgeTalk</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    try {
+      const s = JSON.parse(localStorage.getItem('bridgetalk.settings.v1') || '{}');
+      if (s.theme && s.theme !== 'auto') document.documentElement.setAttribute('data-theme', s.theme);
+    } catch (e) {}
+  </script>
+  <style>
+    .signer-stage {
+      position: relative;
+      aspect-ratio: 4 / 3;
+      background: var(--bg-elev-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .signer-stage svg {
+      max-width: 70%;
+      max-height: 70%;
+    }
+    .signer-caption {
+      position: absolute;
+      bottom: var(--space-4);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--ff-display);
+      font-style: italic;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -0.01em;
+      color: var(--cyan);
+      text-shadow: 0 2px 12px rgba(34, 211, 238, 0.35);
+      max-width: 90%;
+      text-align: center;
+    }
+    .composer textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: var(--space-4);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 16px;
+      line-height: 1.55;
+      resize: vertical;
+    }
+    .composer textarea:focus {
+      outline: none;
+      border-color: var(--cyan);
+    }
+    .signer-progress {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: rgba(255,255,255,0.04);
+    }
+    .signer-progress > div {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--cyan), var(--violet));
+      transition: width 0.18s linear;
+    }
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-3);
+    }
+    .speed-control input[type="range"] { flex: 1; }
+    .speed-val {
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      min-width: 40px;
+      text-align: right;
+    }
+    .examples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: var(--space-3);
+    }
+    .example-chip {
+      font-family: var(--ff-mono);
+      font-size: 11.5px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s var(--ease-out);
+    }
+    .example-chip:hover {
+      background: var(--bg-elev-2);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">Bridge<em class="accent">Talk</em></span>
+        <span class="brand-version">v6.0</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="index.html"><span class="dot"></span>Overview</a>
+        <a class="nav-item" href="communicate.html"><span class="dot"></span>Communicate</a>
+        <a class="nav-item active" href="text-to-sign.html"><span class="dot"></span>Text → Sign</a>
+      </nav>
+      <div class="sidebar-footer">
+        Multimodal recognition<br>
+        Hands · Pose · Face<br>
+        — Browser-only
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="page-eyebrow">Text → Sign — Visualizer</div>
+        <h1 class="page-title">Type to <em>sign</em>.</h1>
+        <p class="page-lede">
+          Type any English phrase and BridgeTalk renders an animated handshape
+          sequence. Words in the dictionary use their full sign; unknown words
+          are fingerspelled letter-by-letter.
+        </p>
+      </header>
+
+      <div class="studio">
+        <div class="col">
+          <div class="card composer">
+            <div class="card-head">
+              <h3 class="card-title">Compose</h3>
+              <span class="card-sub">Press play to sign</span>
+            </div>
+            <textarea id="textInput" placeholder="Type something to sign — e.g. hello my name is jasim">hello my name is jasim</textarea>
+            <div class="row" style="margin-top: 12px; gap: 8px; flex-wrap: wrap;">
+              <button class="btn btn-primary" id="playBtn">Play ▶</button>
+              <button class="btn" id="pauseBtn" disabled>Pause</button>
+              <button class="btn" id="stopBtn">Stop</button>
+              <button class="btn btn-ghost" id="clearBtn">Clear</button>
+              <label class="row" style="gap:6px; margin-left:auto;">
+                <input type="checkbox" id="loopChk" />
+                <span style="font-family: var(--ff-mono); font-size: 12px; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase;">Loop</span>
+              </label>
+            </div>
+            <div class="speed-control">
+              <span style="font-family: var(--ff-mono); font-size: 11px; letter-spacing: 0.08em; color: var(--text-faint); text-transform: uppercase;">Speed</span>
+              <input type="range" id="speedSlider" min="0.5" max="2.0" step="0.1" value="1.0" />
+              <span class="speed-val" id="speedVal">1.0×</span>
+            </div>
+            <div class="examples">
+              <button class="example-chip" data-text="hello my name is jasim">hello my name is jasim</button>
+              <button class="example-chip" data-text="thank you very much">thank you very much</button>
+              <button class="example-chip" data-text="please help me">please help me</button>
+              <button class="example-chip" data-text="how are you">how are you</button>
+              <button class="example-chip" data-text="i love coffee">i love coffee</button>
+              <button class="example-chip" data-text="good morning friend">good morning friend</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3 class="card-title">Tokens</h3>
+              <span class="card-sub" id="tokenCount">0 tokens</span>
+            </div>
+            <div class="tokens" id="tokensPreview"></div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="card">
+            <div class="card-head">
+              <h3 class="card-title">Signer</h3>
+              <span class="card-sub" id="signerStatus">Ready</span>
+            </div>
+            <div class="signer-stage">
+              <div id="signerMount"></div>
+              <div class="signer-caption" id="signerCaption"></div>
+              <div class="signer-progress"><div id="progressBar"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/animations.js"></script>
+  <script src="dictionary.js"></script>
+  <script>
+    const mount = document.getElementById('signerMount');
+    const caption = document.getElementById('signerCaption');
+    const status = document.getElementById('signerStatus');
+    const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const loopChk = document.getElementById('loopChk');
+    const input = document.getElementById('textInput');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedVal = document.getElementById('speedVal');
+    const progressBar = document.getElementById('progressBar');
+    const tokensPreview = document.getElementById('tokensPreview');
+    const tokenCount = document.getElementById('tokenCount');
+
+    const Anim = window.BridgeTalkAnim;
+    let svgEl = null, animator = null;
+    let tokenQueue = [];
+    let totalTokens = 0;
+    let currentIdx = 0;
+
+    function ensureSvg() {
+      if (svgEl) return;
+      svgEl = Anim.createSvg();
+      mount.appendChild(svgEl);
+      animator = new Anim.HandAnimator(svgEl);
+      animator.onTokenStart = (tok, idx) => {
+        currentIdx = idx;
+        caption.textContent = (tok.word || '').toUpperCase();
+        updateProgress();
+        // Highlight current token chip
+        const chips = tokensPreview.querySelectorAll('.token');
+        chips.forEach((c, i) => c.classList.toggle('token-active', i === idx));
+      };
+      animator.onTokenDone = () => updateProgress();
+      animator.onComplete = () => {
+        if (loopChk?.checked) {
+          // restart
+          status.textContent = 'Looping…';
+          setTimeout(() => play(), 400);
+          return;
+        }
+        status.textContent = 'Done';
+        caption.textContent = '';
+        playBtn.disabled = false;
+        pauseBtn.disabled = true;
+        progressBar.style.width = '100%';
+        tokensPreview.querySelectorAll('.token').forEach(c => c.classList.remove('token-active'));
+      };
+    }
+
+    function updateProgress() {
+      if (!totalTokens) { progressBar.style.width = '0%'; return; }
+      const pct = ((currentIdx + 1) / totalTokens) * 100;
+      progressBar.style.width = pct + '%';
+    }
+
+    function renderTokens(tokens) {
+      tokensPreview.innerHTML = tokens.map(t => {
+        const cls = t.kind === 'fingerspell' ? 'token token-spell' : 'token';
+        return `<span class="${cls}">${escapeHtml(t.word)}</span>`;
+      }).join('') || '<span style="color: var(--text-faint); font-size: 12px;">Empty — type something above.</span>';
+      tokenCount.textContent = `${tokens.length} token${tokens.length === 1 ? '' : 's'}`;
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[c]));
+    }
+
+    function play() {
+      ensureSvg();
+      const text = input.value.trim();
+      if (!text) { status.textContent = 'Type something first.'; return; }
+      const tokens = window.BridgeTalkDict.tokenizeForSigning(text);
+      if (!tokens.length) { status.textContent = 'Nothing to sign.'; return; }
+      tokenQueue = tokens;
+      totalTokens = tokens.length;
+      currentIdx = 0;
+      renderTokens(tokens);
+      status.textContent = 'Playing…';
+      playBtn.disabled = true;
+      pauseBtn.disabled = false;
+      progressBar.style.width = '0%';
+      animator.stop();
+      animator.speed = parseFloat(speedSlider.value);
+      animator.setQueue(tokens);
+      animator.play();
+    }
+    function pause() {
+      if (!animator) return;
+      if (animator.playing) {
+        animator.stop();
+        status.textContent = 'Paused';
+        pauseBtn.textContent = 'Resume';
+      } else {
+        animator.play();
+        status.textContent = 'Playing…';
+        pauseBtn.textContent = 'Pause';
+      }
+    }
+    function stop() {
+      animator?.stop();
+      caption.textContent = '';
+      status.textContent = 'Stopped';
+      playBtn.disabled = false;
+      pauseBtn.disabled = true;
+      pauseBtn.textContent = 'Pause';
+      progressBar.style.width = '0%';
+      tokensPreview.querySelectorAll('.token').forEach(c => c.classList.remove('token-active'));
+    }
+    function clear() {
+      input.value = '';
+      stop();
+      renderTokens([]);
+    }
+
+    speedSlider.addEventListener('input', () => {
+      const v = parseFloat(speedSlider.value);
+      speedVal.textContent = v.toFixed(1) + '×';
+      if (animator) animator.speed = v;
+    });
+
+    // Live preview tokenization on input change
+    let previewTimer = null;
+    input.addEventListener('input', () => {
+      clearTimeout(previewTimer);
+      previewTimer = setTimeout(() => {
+        const txt = input.value.trim();
+        if (!txt) return renderTokens([]);
+        if (!window.BridgeTalkDict) return;
+        const tokens = window.BridgeTalkDict.tokenizeForSigning(txt);
+        renderTokens(tokens);
+      }, 200);
+    });
+
+    // Example chips
+    document.querySelectorAll('.example-chip').forEach(c => {
+      c.addEventListener('click', () => {
+        input.value = c.dataset.text;
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+      });
+    });
+
+    playBtn.addEventListener('click', play);
+    pauseBtn.addEventListener('click', pause);
+    stopBtn.addEventListener('click', stop);
+    clearBtn.addEventListener('click', clear);
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'textarea' || tag === 'input') return;
+      if (e.key === ' ') { e.preventDefault(); play(); }
+      else if (e.key === 'Escape') stop();
+    });
+
+    ensureSvg();
+    // Initial preview
+    input.dispatchEvent(new Event('input'));
+  </script>
+</body>
+</html>

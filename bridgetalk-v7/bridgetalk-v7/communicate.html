@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Communicate — BridgeTalk</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    // Apply persisted theme before paint (avoids flash)
+    try {
+      const s = JSON.parse(localStorage.getItem('bridgetalk.settings.v1') || '{}');
+      if (s.theme && s.theme !== 'auto') document.documentElement.setAttribute('data-theme', s.theme);
+    } catch (e) {}
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">Bridge<em class="accent">Talk</em></span>
+        <span class="brand-version">v6.0</span>
+      </div>
+      <nav class="nav">
+        <a class="nav-item" href="index.html"><span class="dot"></span>Overview</a>
+        <a class="nav-item active" href="communicate.html"><span class="dot"></span>Communicate</a>
+        <a class="nav-item" href="text-to-sign.html"><span class="dot"></span>Text → Sign</a>
+      </nav>
+      <div class="sidebar-footer">
+        Multimodal recognition<br>
+        Hands · Pose · Face<br>
+        — Browser-only
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="page-header">
+        <div class="row-between">
+          <div>
+            <div class="page-eyebrow">Sign → Text — Live studio</div>
+            <h1 class="page-title">Speak with your <em>hands</em>.</h1>
+          </div>
+          <button class="btn btn-icon" id="settingsBtn" title="Settings (S)" aria-label="Open settings">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </button>
+        </div>
+        <p class="page-lede">
+          Camera, skeleton overlay, recognition card, and sentence panel. Try
+          touching your chin (thank you), pointing at your chest (me), or
+          waving an open palm at face level (hello).
+        </p>
+      </header>
+
+      <div class="studio">
+        <!-- LEFT: camera + recognized -->
+        <div class="col">
+          <div class="cam-stage">
+            <div class="cam-frame">
+              <video id="cam" playsinline muted></video>
+              <canvas id="overlay"></canvas>
+              <div class="cam-chip" id="camChip">
+                <span class="pulse"></span>
+                <span id="status">Click start to begin</span>
+              </div>
+              <div class="cam-fps hidden" id="fps">— fps</div>
+            </div>
+            <div class="cam-controls">
+              <span>Live · 30fps target</span>
+              <div class="mode-toggle" role="tablist">
+                <button class="mode-btn active" data-mode="signs" type="button" title="Signs (1)">Signs</button>
+                <button class="mode-btn" data-mode="alphabet" type="button" title="Alphabet ML (2)">Alphabet ML</button>
+              </div>
+              <button class="btn btn-primary" id="startBtn" title="Start/stop camera (Space)">Start camera</button>
+            </div>
+          </div>
+
+          <div class="card recog-card" id="recogBox">
+            <div class="card-head">
+              <h3 class="card-title">Recognized sign</h3>
+              <span class="card-sub" id="recogKind">—</span>
+            </div>
+            <div class="recog-word empty" id="recogWord">—</div>
+            <div class="recog-meta">
+              <span>Confidence</span>
+              <div class="recog-conf-bar"><div id="recogConfBar"></div></div>
+              <span id="recogConf"></span>
+            </div>
+            <div class="top3 hidden" id="top3"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT: sentence + history + vocab -->
+        <div class="col">
+          <div class="card sentence-panel">
+            <div class="card-head">
+              <h3 class="card-title">Sentence</h3>
+              <span class="card-sub">Real-time</span>
+            </div>
+            <div class="sentence-display" id="sentence">&nbsp;</div>
+            <div class="tokens" id="tokens"></div>
+            <div class="sentence-controls">
+              <button class="btn" id="undoBtn" title="Undo (U)">Undo</button>
+              <button class="btn" id="clearBtn" title="Clear (Esc)">Clear</button>
+              <button class="btn" id="copyBtn" title="Copy (C)">Copy</button>
+              <button class="btn btn-primary" id="speakBtn" title="Speak (Enter)">Speak ▶</button>
+            </div>
+          </div>
+
+          <div class="card history-panel">
+            <div class="card-head">
+              <h3 class="card-title">History</h3>
+              <div class="row" style="gap:6px;">
+                <button class="btn btn-ghost btn-sm" id="historyExportBtn" title="Download JSON">Export</button>
+                <button class="btn btn-ghost btn-sm" id="historyClearBtn" title="Clear history">Clear</button>
+              </div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+          </div>
+
+          <div class="card vocab-browser">
+            <div class="card-head">
+              <h3 class="card-title">Vocabulary</h3>
+              <span class="card-sub" id="vocabCount">~90 signs</span>
+            </div>
+            <input type="search" id="vocabSearch" class="vocab-search" placeholder="Search signs…" />
+            <div class="vocab-list" id="vocabList"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings drawer -->
+  <div class="overlay-panel" id="settingsPanel" role="dialog" aria-labelledby="settingsTitle" aria-modal="true">
+    <div class="panel-card">
+      <div class="panel-head">
+        <h3 id="settingsTitle" class="panel-title">Settings</h3>
+        <button class="btn btn-icon btn-ghost" id="settingsCloseBtn" aria-label="Close settings">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-title">Appearance</h4>
+        <label class="setting-row">
+          <span class="setting-label">Theme</span>
+          <select id="s-theme" class="setting-input">
+            <option value="auto">Auto (system)</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Show pose skeleton</span>
+          <input type="checkbox" id="s-showPose" />
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Show face mesh</span>
+          <input type="checkbox" id="s-showFace" />
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Show body anchors</span>
+          <input type="checkbox" id="s-showAnchors" />
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Show FPS counter</span>
+          <input type="checkbox" id="s-showFps" />
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Show top-3 alphabet alternatives</span>
+          <input type="checkbox" id="s-showTop3" />
+        </label>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-title">Recognition (signs mode)</h4>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>Confidence threshold</span>
+            <span class="setting-value" id="s-confThreshold-val">0.55</span>
+          </span>
+          <input type="range" id="s-confThreshold" min="0.30" max="0.90" step="0.01" />
+          <span class="setting-hint">Lower = more sensitive but more false positives.</span>
+        </label>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>Hold time (location/shape)</span>
+            <span class="setting-value" id="s-holdTime-val">500 ms</span>
+          </span>
+          <input type="range" id="s-holdTime" min="200" max="1200" step="50" />
+        </label>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>Repeat cooldown</span>
+            <span class="setting-value" id="s-cooldown-val">1000 ms</span>
+          </span>
+          <input type="range" id="s-cooldown" min="400" max="2000" step="100" />
+        </label>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-title">Alphabet ML</h4>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>Min confidence</span>
+            <span class="setting-value" id="s-alphabetMinConfidence-val">0.55</span>
+          </span>
+          <input type="range" id="s-alphabetMinConfidence" min="0.30" max="0.90" step="0.01" />
+        </label>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>Required stable frames</span>
+            <span class="setting-value" id="s-alphabetRequiredFrames-val">3</span>
+          </span>
+          <input type="range" id="s-alphabetRequiredFrames" min="1" max="6" step="1" />
+          <span class="setting-hint">More frames = more reliable, but slower to emit.</span>
+        </label>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-title">Sentence &amp; speech</h4>
+        <label class="setting-row">
+          <span class="setting-label">Auto-capitalize &amp; punctuate</span>
+          <input type="checkbox" id="s-autoCapitalize" />
+        </label>
+        <label class="setting-row">
+          <span class="setting-label">Audio click on emission</span>
+          <input type="checkbox" id="s-audioFeedback" />
+        </label>
+        <label class="setting-row stacked">
+          <span class="setting-label-row">
+            <span>TTS speed</span>
+            <span class="setting-value" id="s-ttsRate-val">0.95×</span>
+          </span>
+          <input type="range" id="s-ttsRate" min="0.6" max="1.4" step="0.05" />
+        </label>
+      </div>
+
+      <div class="panel-section">
+        <h4 class="panel-section-title">Keyboard shortcuts</h4>
+        <div class="kbd-grid">
+          <span><kbd>Space</kbd> Start / stop camera</span>
+          <span><kbd>1</kbd> Signs mode</span>
+          <span><kbd>2</kbd> Alphabet mode</span>
+          <span><kbd>U</kbd> Undo last word</span>
+          <span><kbd>C</kbd> Copy sentence</span>
+          <span><kbd>Enter</kbd> Speak sentence</span>
+          <span><kbd>Esc</kbd> Clear sentence</span>
+          <span><kbd>S</kbd> Toggle settings</span>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <button class="btn btn-ghost" id="s-reset">Reset to defaults</button>
+        <button class="btn btn-primary" id="settingsCloseBtn2" onclick="document.getElementById('settingsPanel').classList.remove('open')">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast hint shown once -->
+  <div class="hint-toast" id="hintToast">
+    <strong>Shortcuts:</strong> Space=start · U=undo · Enter=speak · S=settings
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
