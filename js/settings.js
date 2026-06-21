@@ -70,7 +70,7 @@ const DEFAULTS = {
   //   'auto'   — prefer onnx in-browser, fall back to http server
   //   'onnx'   — fail if onnx not available (no fallback)
   //   'http'   — always use the python server (v6 behaviour)
-  alphabetBackend: 'auto',
+  alphabetBackend: 'onnx',
 
   // Sequence model (LSTM) for dynamic signs. Optional — requires a
   // trained sequence_model.onnx in /models. If absent, this is a no-op.

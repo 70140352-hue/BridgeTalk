@@ -30,10 +30,13 @@ import { MotionGate } from './motion-gate.js';
 import { OnnxAlphabetRunner } from './onnx-alphabet.js';
 import { SequenceModelRunner } from './sequence-model.js';
 
-const path = location.pathname;
+// Normalize the path so this works under both `/communicate.html` and
+// Netlify/Vercel "pretty URLs" (`/communicate`, or `/communicate/`).
+const path = location.pathname.replace(/\/+$/, ''); // strip trailing slash
 
-// communicate.html is the main signing page
-if (path.endsWith('communicate.html')) {
+// communicate.html is the main signing page. Match the bare route too,
+// since static hosts commonly serve it without the .html extension.
+if (path.endsWith('communicate.html') || path.endsWith('/communicate') || path.endsWith('communicate')) {
   bootCommunicatePage();
 }
 

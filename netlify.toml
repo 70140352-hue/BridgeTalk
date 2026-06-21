@@ -1,0 +1,23 @@
+# Netlify configuration for BridgeTalk v7 (static, in-browser ONNX)
+
+[build]
+  publish = "."
+  # No build step — these are static files served as-is.
+
+# Ensure correct MIME types and long cache for model + wasm assets.
+[[headers]]
+  for = "/models/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.onnx"
+  [headers.values]
+    Content-Type = "application/octet-stream"
+
+# JS ES modules must be served as text/javascript (Netlify does this by
+# default, declared here for clarity).
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Content-Type = "text/javascript"
